@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# for 42 wolfsburg piscine by mrmidi
+# 1. compiles all files in folders and subfolders with all warnings and errors
+# 2. removes compiled files
+#TODO add norminette check
+
+#GREP="^(Error|Warning)"
+
+echo "Checking norminette..."
+NORM=$(/usr/bin/norminette -R CheckForbiddenSourceHeader | grep -E '^(Error|Warning)')
+if [ -z "{NORM}" ]
+then
+echo "norminette check failed. u sux"
+exit
+fi
+
+echo "norminette check seems to be ok"
+echo "compiling .c files"
+RESULT=$(find . -type f -name '*.c' -exec gcc -c -Wextra -Wall -Werror {} ';')
+if [ -z "{$RESULT}" ]
+then
+	echo "No errors found!"
+else
+	echo "S H I I I I I I I T"
+fi
+echo "Deleting compiled files..."
+find . -type f -name "*.o" -delete

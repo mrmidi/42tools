@@ -1,0 +1,195 @@
+#!/usr/bin/python3
+
+
+######################################
+# 42 school c piscine header creator #
+# ver 0.01                           #
+# (c) 2022, mrmidi                   #
+######################################
+
+
+import sys
+import getopt
+import os
+import glob
+from datetime import datetime
+
+
+user = "ashabeln"
+
+header_lines = ["/* ************************************************************************** */" + os.linesep,
+                "/*                                                                            */" + os.linesep,
+                "/*                                                        :::      ::::::::   */" + os.linesep,
+                "/*                                                      :+:      :+:    :+:   */" + os.linesep,
+                "/*                                                    +:+ +:+         +:+     */" + os.linesep,
+                "/*                                                  +#+  +:+       +#+        */" + os.linesep,
+                "/*                                                +#+#+#+#+#+   +#+           */" + os.linesep,
+                "/*                                                     #+#    #+#             */" + os.linesep,
+                "/*                                                    ###   ########.fr       */" + os.linesep,
+                "/*                                                                            */" + os.linesep,
+                "/* ************************************************************************** */" + os.linesep,
+                "" + os.linesep]
+header_multiline = """
+"""
+
+def check(filename):
+    created_string = ""
+    print(f"checking {filename}")
+    file = open(filename, 'r')
+    #lines = file.readline()
+    is_header_set = False
+    try:
+        for x in range(12):
+            line = next(file).strip()
+            if x == 7:
+                created_string = line
+                #print(created_string)
+            if x < 11:
+                if line.startswith('/'):
+                    is_header_set = True
+            else:
+                if not line:
+                    print("everything looks like header for me")
+                    is_header_set = True
+                else:
+                    is_header_set = False
+    except:
+        isHeaderSet = False
+    if is_header_set:
+        print(f"found header (apparently) in {filename}")
+        update(filename, created_string)
+    else:
+        print(f"header in {filename} not found (apparently)")
+        create(filename)
+    #print(filename)
+
+
+#50 for filename
+def count_spaces(stringsize, required):
+    return stringsize-required * -1
+
+def get_updateddate_string(name):
+    result = "/*   Updated: "
+    now = datetime.now()
+    timestamp = now.strftime(f"%Y/%m/%d %H:%M:%S by {name}")
+    result += timestamp
+    spacestring = ""
+    i = 0
+    while i < 54-len(result):
+        spacestring += " "
+        i += 1
+    result += spacestring
+    result += "###   ########.fr       */"
+    return result
+    #print(timestamp)
+
+
+def get_createddate_string(name):
+    result = "/*   Created: "
+    now = datetime.now()
+    timestamp = now.strftime(f"%Y/%m/%d %H:%M:%S by {name}")
+    result += timestamp
+    spacestring = ""
+    i = 0
+    while i < 55-len(result):
+        spacestring += " "
+        i += 1
+    result += spacestring
+    result += "#+#    #+#             */"
+    return result
+    #print(timestamp)
+
+def get_createdby_string(name):
+    result = "/*   "
+    bystr = f"By: {name} <{name}@student.42wolfsburg.de>"
+    result += bystr
+    spacestring = ""
+    i = 0
+    while i < 47-len(bystr):
+        spacestring += " "
+        i += 1
+    result += spacestring
+    result += "+#+  +:+       +#+        */"
+    return result
+
+def get_filename_string(filename):
+    filename = (os.path.basename(filename))
+    result = "/*   "
+    result += filename
+    #50 for filename
+    numspaces = count_spaces(len(filename), 50)
+    i = 0
+    spacestring = ""
+    while i < 51-len(filename):
+        spacestring += " "
+        i += 1
+    result += spacestring
+    result += ":+:      :+:    :+:   */"
+    return result
+
+def create(filename):
+    print(f"creating header in {filename}...")
+    name = user
+    filename_string = get_filename_string(filename)
+    by_string = get_createdby_string(name)
+    created_string = get_createddate_string(name)
+    updated_string = get_updateddate_string(name)
+    header_lines[3] = (filename_string) + os.linesep
+    header_lines[5] = (by_string) + os.linesep
+    header_lines[7] = (created_string) + os.linesep
+    header_lines[8] = (updated_string) + os.linesep
+
+    source_file = open(filename, "r")
+    source_lines = source_file.readlines()
+
+    destination_file = open(filename, "w")
+    destination_file.writelines(header_lines)
+    destination_file.writelines(source_lines)
+    destination_file.close()
+
+def update(filename, created_string):
+    print(f"updating \"{filename}\"...")
+    name = user
+    filename_string = get_filename_string(filename)
+    by_string = get_createdby_string(name)
+    updated_string = get_updateddate_string(name)
+    source_file = open(filename, "r")
+    source_lines = source_file.readlines();
+    i = 0
+    for line in source_lines:
+        i += 1
+        if i == 3:
+            source_lines[i] = filename_string + os.linesep
+        if i == 5:
+            source_lines[i] = by_string + os.linesep
+        if i == 7:
+            source_lines[i] = created_string + os.linesep
+        if i == 8:
+            source_lines[i] = updated_string + os.linesep
+
+    destination_file = open(filename, "w")
+    destination_file.writelines(source_lines)
+    destination_file.close()
+
+
+def header(args):
+
+    print(f"ARGS: {args}")
+
+
+if __name__ == '__main__':
+    args = sys.argv
+    # header(args)
+    cf = os.getcwd()
+    print(f"current folder: {cf}")
+    c_files = glob.glob('**/*.c', recursive=True)
+    if c_files:
+        print(f"files found: {c_files}")
+        for file in c_files:
+            check(file)
+    else:
+        print("no .c source files was found. bye.")
+        #print(files)
+
+
+
